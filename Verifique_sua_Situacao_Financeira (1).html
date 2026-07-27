@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173f2b">
+  <title>Verifique sua Situação Financeira</title>
+  <style>
+    :root {
+      --forest: #173f2b;
+      --leaf: #2d6a46;
+      --lime: #ddefb8;
+      --cream: #f7f4e9;
+      --ink: #183027;
+      --muted: #64736c;
+      --line: #d9dfd7;
+      --white: #fff;
+      --ok: #247a45;
+      --ok-bg: #e7f6eb;
+      --warn: #9b4b13;
+      --warn-bg: #fff0df;
+      --danger: #a52b2b;
+      --danger-bg: #fde9e7;
+      --shadow: 0 16px 45px rgba(19, 54, 37, .13);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(221, 239, 184, .9), transparent 32rem),
+        linear-gradient(180deg, #f5f8ee 0%, var(--cream) 60%, #eef3e6 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input { font: inherit; }
+    .shell { width: min(100% - 28px, 980px); margin: 0 auto; padding: 28px 0 48px; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      color: var(--white);
+      background: var(--forest);
+      box-shadow: 0 8px 18px rgba(23, 63, 43, .22);
+      font-size: 22px;
+    }
+    .brand-copy strong, .brand-copy span { display: block; }
+    .brand-copy strong { font-size: 14px; letter-spacing: .02em; }
+    .brand-copy span { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .offline {
+      padding: 7px 11px;
+      border: 1px solid #bdd1be;
+      border-radius: 999px;
+      background: rgba(255,255,255,.62);
+      color: var(--leaf);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 28px;
+      padding: clamp(26px, 5vw, 48px);
+      border-radius: 28px;
+      color: white;
+      background: var(--forest);
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      right: -110px;
+      top: -150px;
+      border: 54px solid rgba(221, 239, 184, .12);
+      border-radius: 50%;
+    }
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: var(--lime);
+      background: rgba(255,255,255,.09);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 13px 0 12px;
+      max-width: 12ch;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(37px, 6vw, 64px);
+      line-height: .98;
+      letter-spacing: -.035em;
+    }
+    .hero p { max-width: 52ch; margin: 0; color: #dce9df; line-height: 1.55; font-size: 15px; }
+    .hero-note {
+      align-self: end;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 20px;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(4px);
+    }
+    .hero-note span { display: block; color: var(--lime); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .hero-note strong { display: block; margin: 8px 0 5px; font-size: 26px; }
+    .hero-note small { color: #dce9df; line-height: 1.35; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+      margin-top: 20px;
+    }
+    .panel {
+      padding: clamp(20px, 4vw, 30px);
+      border: 1px solid rgba(217, 223, 215, .9);
+      border-radius: 24px;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 10px 28px rgba(19,54,37,.07);
+    }
+    .section-kicker {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--leaf);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    h2 { margin: 0 0 7px; font-size: 25px; letter-spacing: -.025em; }
+    .intro { margin: 0 0 24px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+
+    .field { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 760; line-height: 1.32; }
+    .input-wrap { position: relative; }
+    .prefix, .suffix {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .prefix { left: 15px; }
+    .suffix { right: 14px; }
+    input {
+      width: 100%;
+      height: 53px;
+      padding: 0 66px 0 45px;
+      border: 1.5px solid var(--line);
+      border-radius: 13px;
+      outline: 0;
+      color: var(--ink);
+      background: #fbfcf8;
+      font-size: 18px;
+      font-weight: 700;
+      transition: border-color .16s, box-shadow .16s, background .16s;
+    }
+    input:focus {
+      border-color: var(--leaf);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(45, 106, 70, .12);
+    }
+    input::placeholder { color: #a5ada8; font-weight: 500; }
+    .field-help { margin: 6px 2px 0; color: var(--muted); font-size: 11px; }
+
+    .actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 6px; }
+    .btn {
+      min-height: 50px;
+      border: 0;
+      border-radius: 13px;
+      cursor: pointer;
+      font-weight: 820;
+      transition: transform .15s, filter .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { padding: 0 20px; color: white; background: var(--forest); }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-ghost { padding: 0 16px; color: var(--muted); background: #edf1eb; }
+
+    .results-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      background: #eef1ed;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .result-list { display: grid; gap: 12px; }
+    .result {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: #fbfcf9;
+      transition: .2s ease;
+    }
+    .result-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .metric { color: var(--muted); font-size: 12px; font-weight: 790; letter-spacing: .03em; text-transform: uppercase; }
+    .value { margin-top: 3px; font-size: 27px; font-weight: 850; letter-spacing: -.03em; }
+    .status {
+      max-width: 72%;
+      padding: 7px 10px;
+      border-radius: 9px;
+      color: var(--muted);
+      background: #ecefeb;
+      font-size: 12px;
+      font-weight: 820;
+      text-align: right;
+      line-height: 1.25;
+    }
+    .result p { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .result.ok { border-color: #b9dfc4; background: var(--ok-bg); }
+    .result.ok .status { color: var(--ok); background: #d2eed9; }
+    .result.warn { border-color: #efcfaa; background: var(--warn-bg); }
+    .result.warn .status { color: var(--warn); background: #f8dfc3; }
+    .result.danger { border-color: #efbcb7; background: var(--danger-bg); }
+    .result.danger .status { color: var(--danger); background: #f6d1ce; }
+
+    .empty {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      color: var(--muted);
+      background: #f2f4f0;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    details {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    summary { cursor: pointer; color: var(--leaf); font-weight: 800; }
+    .formula { padding: 8px 0; line-height: 1.45; }
+    .disclaimer {
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .error {
+      display: none;
+      margin: 0 0 15px;
+      padding: 11px 13px;
+      border-radius: 11px;
+      color: var(--danger);
+      background: var(--danger-bg);
+      font-size: 12px;
+      font-weight: 720;
+    }
+    .error.show { display: block; }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 20px, 620px); padding-top: 16px; }
+      header { margin-bottom: 14px; }
+      .brand-copy span { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 28px 23px; border-radius: 22px; }
+      h1 { font-size: clamp(38px, 12vw, 54px); }
+      .hero-note { display: flex; align-items: center; gap: 12px; }
+      .hero-note strong { margin: 0; font-size: 22px; }
+      .hero-note small { max-width: 22ch; }
+      .workspace { grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
+      .panel { border-radius: 20px; padding: 20px; }
+      .results-head { margin-bottom: 14px; }
+      .result-top { align-items: center; }
+      .status { max-width: 66%; }
+    }
+
+    @media print {
+      body { background: white; }
+      .shell { width: 100%; padding: 0; }
+      .hero, .panel { box-shadow: none; }
+      .actions, .offline { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">↗</div>
+        <div class="brand-copy">
+          <strong>Diagnóstico Rural</strong>
+          <span>Decisões financeiras mais claras</span>
+        </div>
+      </div>
+      <div class="offline">Funciona offline</div>
+    </header>
+
+    <section class="hero" aria-labelledby="titulo">
+      <div>
+        <span class="eyebrow">Análise rápida</span>
+        <h1 id="titulo">Verifique sua Situação Financeira</h1>
+        <p>Insira quatro números da sua propriedade e veja, em segundos, indicadores de alavancagem, liquidez e capacidade de servir a dívida.</p>
+      </div>
+      <div class="hero-note">
+        <div>
+          <span>Unidade</span>
+          <strong>R$ mil</strong>
+        </div>
+        <small>Use a mesma unidade em todos os campos.</small>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <form class="panel" id="financeForm" novalidate>
+        <span class="section-kicker">Seus números</span>
+        <h2>Preencha os dados</h2>
+        <p class="intro">Considere os valores anuais da atividade rural, todos em milhares de reais.</p>
+        <div id="error" class="error" role="alert"></div>
+
+        <div class="field">
+          <label for="revenue">Inclua aqui sua receita anual</label>
+          <div class="input-wrap">
+            <span class="prefix">R$</span>
+            <input id="revenue" name="revenue" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 1.500" aria-describedby="revenueHelp">
+            <span class="suffix">mil</span>
+          </div>
+          <p class="field-help" id="revenueHelp">Receita bruta anual da propriedade.</p>
+        </div>
+
+        <div class="field">
+          <label for="cost">Inclua aqui seus custos de produção anual completos, insumos e operações</label>
+          <div class="input-wrap">
+            <span class="prefix">R$</span>
+            <input id="cost" name="cost" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 980" aria-describedby="costHelp">
+            <span class="suffix">mil</span>
+          </div>
+          <p class="field-help" id="costHelp">Some todos os custos anuais de produção.</p>
+        </div>
+
+        <div class="field">
+          <label for="shortDebt">Inclua aqui as dívidas que você precisa quitar este ano</label>
+          <div class="input-wrap">
+            <span class="prefix">R$</span>
+            <input id="shortDebt" name="shortDebt" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 220" aria-describedby="shortHelp">
+            <span class="suffix">mil</span>
+          </div>
+          <p class="field-help" id="shortHelp">Parcelas e obrigações com vencimento neste ano.</p>
+        </div>
+
+        <div class="field">
+          <label for="longDebt">Inclua aqui suas dívidas que vencerão depois de 2027</label>
+          <div class="input-wrap">
+            <span class="prefix">R$</span>
+            <input id="longDebt" name="longDebt" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 450" aria-describedby="longHelp">
+            <span class="suffix">mil</span>
+          </div>
+          <p class="field-help" id="longHelp">Saldo das dívidas de longo prazo.</p>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Analisar agora</button>
+          <button class="btn btn-ghost" type="button" id="clearBtn">Limpar</button>
+        </div>
+      </form>
+
+      <section class="panel" aria-live="polite" aria-labelledby="resultTitle">
+        <div class="results-head">
+          <div>
+            <span class="section-kicker">Resultado</span>
+            <h2 id="resultTitle">Seu diagnóstico</h2>
+          </div>
+          <span class="badge">3 indicadores</span>
+        </div>
+
+        <div class="result-list">
+          <article class="result" id="levCard">
+            <div class="result-top">
+              <div>
+                <div class="metric">Alavancagem</div>
+                <div class="value" id="levValue">—</div>
+              </div>
+              <div class="status" id="levStatus">Aguardando dados</div>
+            </div>
+            <p>Dívida total em relação à receita anual.</p>
+          </article>
+
+          <article class="result" id="liqCard">
+            <div class="result-top">
+              <div>
+                <div class="metric">Liquidez</div>
+                <div class="value" id="liqValue">—</div>
+              </div>
+              <div class="status" id="liqStatus">Aguardando dados</div>
+            </div>
+            <p>Custos de produção em relação às dívidas deste ano.</p>
+          </article>
+
+          <article class="result" id="dsCard">
+            <div class="result-top">
+              <div>
+                <div class="metric">Serviço da dívida</div>
+                <div class="value" id="dsValue">—</div>
+              </div>
+              <div class="status" id="dsStatus">Aguardando dados</div>
+            </div>
+            <p>Margem disponível em relação ao compromisso estimado da dívida.</p>
+          </article>
+        </div>
+
+        <div class="empty" id="emptyState">Preencha os quatro campos e toque em <strong>Analisar agora</strong>. Os resultados não são enviados nem armazenados.</div>
+
+        <details>
+          <summary>Como os indicadores são calculados</summary>
+          <div class="formula"><strong>Alavancagem:</strong> (dívida de curto prazo + dívida de longo prazo) ÷ receita.</div>
+          <div class="formula"><strong>Liquidez:</strong> custos de produção ÷ dívida de curto prazo.</div>
+          <div class="formula"><strong>Capacidade de servir a dívida:</strong> (receita − custos) ÷ [15% da dívida total + (dívida de longo prazo ÷ 5)].</div>
+        </details>
+      </section>
+    </section>
+
+    <p class="disclaimer">Esta ferramenta oferece uma análise indicativa e educacional. Não substitui avaliação contábil, financeira ou de crédito realizada por profissional qualificado.</p>
+  </main>
+
+  <script>
+    const ids = ["revenue", "cost", "shortDebt", "longDebt"];
+    const form = document.getElementById("financeForm");
+    const errorBox = document.getElementById("error");
+    const emptyState = document.getElementById("emptyState");
+
+    function parsePtNumber(raw) {
+      let value = String(raw).trim().replace(/\s/g, "");
+      if (!value) return NaN;
+      if (value.includes(",") && value.includes(".")) {
+        value = value.lastIndexOf(",") > value.lastIndexOf(".")
+          ? value.replace(/\./g, "").replace(",", ".")
+          : value.replace(/,/g, "");
+      } else if (value.includes(",")) {
+        value = value.replace(/\./g, "").replace(",", ".");
+      } else {
+        const parts = value.split(".");
+        if (parts.length > 1 && parts.slice(1).every(p => p.length === 3)) value = parts.join("");
+      }
+      return Number(value);
+    }
+
+    function formatIndex(value) {
+      if (value === Infinity) return "∞";
+      if (!Number.isFinite(value)) return "—";
+      return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function paint(cardId, valueId, statusId, value, message, tone) {
+      const card = document.getElementById(cardId);
+      card.className = "result " + tone;
+      document.getElementById(valueId).textContent = formatIndex(value);
+      document.getElementById(statusId).textContent = message;
+    }
+
+    function resetResults() {
+      [["levCard","levValue","levStatus"],["liqCard","liqValue","liqStatus"],["dsCard","dsValue","dsStatus"]]
+        .forEach(([c,v,s]) => {
+          document.getElementById(c).className = "result";
+          document.getElementById(v).textContent = "—";
+          document.getElementById(s).textContent = "Aguardando dados";
+        });
+      emptyState.style.display = "block";
+    }
+
+    function calculate(event) {
+      if (event) event.preventDefault();
+      const values = ids.map(id => parsePtNumber(document.getElementById(id).value));
+      if (values.some(v => !Number.isFinite(v))) {
+        errorBox.textContent = "Preencha todos os campos com números válidos.";
+        errorBox.classList.add("show");
+        return;
+      }
+      if (values.some(v => v < 0)) {
+        errorBox.textContent = "Use valores iguais ou maiores que zero.";
+        errorBox.classList.add("show");
+        return;
+      }
+
+      const [revenue, cost, shortDebt, longDebt] = values;
+      errorBox.classList.remove("show");
+      emptyState.style.display = "none";
+
+      const totalDebt = shortDebt + longDebt;
+      const leverage = revenue === 0 ? (totalDebt === 0 ? 0 : Infinity) : totalDebt / revenue;
+      const liquidity = shortDebt === 0 ? Infinity : cost / shortDebt;
+      const debtCommitment = .15 * totalDebt + longDebt / 5;
+      const debtService = debtCommitment === 0
+        ? ((revenue - cost) >= 0 ? Infinity : -Infinity)
+        : (revenue - cost) / debtCommitment;
+
+      paint("levCard", "levValue", "levStatus", leverage,
+        leverage < 1 ? "OK" : "Alavancado!",
+        leverage < 1 ? "ok" : "warn");
+
+      paint("liqCard", "liqValue", "liqStatus", liquidity,
+        liquidity > 1 ? "OK" : "Precisa alongar dívidas",
+        liquidity > 1 ? "ok" : "warn");
+
+      let serviceMessage, serviceTone;
+      if (debtService > 1) {
+        serviceMessage = "OK";
+        serviceTone = "ok";
+      } else if (leverage < 1) {
+        serviceMessage = "Precisa alongar dívidas";
+        serviceTone = "warn";
+      } else {
+        serviceMessage = "Cuidado com bola de neve de endividamento, talvez seja o caso de desmobilizar e quitar dívidas!";
+        serviceTone = "danger";
+      }
+      paint("dsCard", "dsValue", "dsStatus", debtService, serviceMessage, serviceTone);
+
+      if (window.innerWidth < 761) {
+        document.getElementById("resultTitle").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    form.addEventListener("submit", calculate);
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      form.reset();
+      errorBox.classList.remove("show");
+      resetResults();
+      document.getElementById("revenue").focus();
+    });
+
+    ids.forEach(id => {
+      document.getElementById(id).addEventListener("input", () => errorBox.classList.remove("show"));
+    });
+  </script>
+</body>
+</html>
