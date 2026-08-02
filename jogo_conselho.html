@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conselho na Roça — O Jogo da Boa Governança</title>
+<style>
+  :root {
+    --brown-dark: #6B4423;
+    --brown: #A0672E;
+    --gold: #C9922F;
+    --gold-light: #E8B84B;
+    --green: #2E7D32;
+    --green-dark: #1B5E20;
+    --red: #A83232;
+    --cream: #FAF6EE;
+    --cream-2: #F1ECE0;
+    --ink: #3A2E1F;
+    --gray: #6b6459;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, #FAF6EE 0%, #F1ECE0 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 14px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--brown-dark);
+    letter-spacing: 0.3px;
+  }
+  .brand .leaf { font-size: 20px; }
+
+  .score-pill {
+    background: var(--brown-dark);
+    color: white;
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-size: 13.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+
+  .ref-btn {
+    background: white;
+    border: 1.5px solid var(--gold);
+    color: var(--brown-dark);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .ref-btn:hover { background: var(--cream-2); }
+
+  .progress-track {
+    height: 8px;
+    background: #e6ddca;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green) 0%, var(--gold) 100%);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 6px 24px rgba(107,68,35,0.10);
+    padding: 30px 28px;
+    margin-bottom: 16px;
+    border: 1px solid #efe6d3;
+  }
+
+  /* --- Intro screen --- */
+  .hero-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--brown-dark);
+    line-height: 1.25;
+    margin: 0 0 10px 0;
+  }
+  .hero-sub {
+    font-size: 15.5px;
+    color: var(--gray);
+    line-height: 1.55;
+    margin: 0 0 20px 0;
+  }
+  .phase-tag {
+    display: inline-block;
+    background: var(--cream-2);
+    color: var(--brown-dark);
+    font-weight: 800;
+    font-size: 12.5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .rules-box {
+    background: var(--cream);
+    border-left: 4px solid var(--gold);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.65;
+    margin: 16px 0;
+    color: var(--ink);
+  }
+  .rules-box ul { margin: 8px 0 0 18px; padding: 0; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 22px;
+    font-size: 15.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.15s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary {
+    background: linear-gradient(180deg, var(--green) 0%, var(--green-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46,125,50,0.30);
+    width: 100%;
+  }
+  .btn-primary:hover { box-shadow: 0 6px 16px rgba(46,125,50,0.40); }
+
+  /* --- Question screen --- */
+  .q-eyebrow {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.45;
+    margin-bottom: 24px;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 520px) {
+    .choices { grid-template-columns: 1fr; }
+  }
+
+  .choice-btn {
+    border: 2px solid #e4dac1;
+    background: var(--cream);
+    border-radius: 14px;
+    padding: 18px 14px;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.3;
+    transition: all 0.15s ease;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--gold);
+    background: #FBF2DC;
+    transform: translateY(-2px);
+  }
+  .choice-btn:disabled { cursor: default; }
+  .choice-btn.correct {
+    background: #E7F4E8;
+    border-color: var(--green);
+    color: var(--green-dark);
+  }
+  .choice-btn.wrong {
+    background: #F6E5E2;
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .choice-btn .emoji { font-size: 22px; display: block; margin-bottom: 6px; }
+
+  .feedback {
+    margin-top: 20px;
+    padding: 16px 18px;
+    border-radius: 12px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #E7F4E8; border: 1.5px solid var(--green); color: #1B4620; }
+  .feedback.bad { background: #F6E5E2; border: 1.5px solid var(--red); color: #6B1F1F; }
+  .feedback .fb-title { font-weight: 900; margin-bottom: 4px; font-size: 15px; }
+
+  .next-row { margin-top: 18px; display: none; }
+  .next-row.show { display: block; }
+
+  /* --- Reference table --- */
+  .ref-table-wrap { overflow-x: auto; margin-top: 6px; }
+  table.ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    min-width: 480px;
+  }
+  table.ref-table th {
+    background: linear-gradient(180deg, var(--gold) 0%, var(--brown) 100%);
+    color: white;
+    padding: 9px 8px;
+    text-align: left;
+    font-size: 12.5px;
+  }
+  table.ref-table td {
+    padding: 9px 8px;
+    border-bottom: 1px solid #eee2c9;
+    vertical-align: top;
+  }
+  table.ref-table tr:nth-child(even) td { background: #F6F1E4; }
+  table.ref-table tr:nth-child(odd) td { background: #FCFAF3; }
+
+  /* --- Modal --- */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(58,46,31,0.55);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal-box {
+    background: white;
+    border-radius: 16px;
+    padding: 22px 20px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  }
+  .modal-box h3 { margin: 0 0 4px 0; color: var(--brown-dark); font-size: 18px; }
+  .modal-box p.sub { margin: 0 0 14px 0; color: var(--gray); font-size: 13.5px; }
+  .modal-close {
+    display: block;
+    margin: 16px auto 0 auto;
+    background: var(--brown-dark);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* --- Intermission --- */
+  .divider-note {
+    text-align: center;
+    color: var(--gray);
+    font-size: 13.5px;
+    margin: 4px 0 14px 0;
+  }
+
+  /* --- End screen --- */
+  .end-score {
+    font-size: 44px;
+    font-weight: 900;
+    color: var(--brown-dark);
+    text-align: center;
+    margin: 6px 0 4px 0;
+  }
+  .end-score span { font-size: 20px; color: var(--gray); font-weight: 700; }
+  .end-tier {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+  .end-msg {
+    text-align: center;
+    color: var(--gray);
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+  .recap {
+    margin-top: 10px;
+  }
+  .recap-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid #f0e9d6;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  .recap-item:last-child { border-bottom: none; }
+  .recap-icon { font-size: 16px; flex-shrink: 0; }
+
+  footer.credit {
+    text-align: center;
+    color: #b5aa93;
+    font-size: 11.5px;
+    margin-top: 18px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="leaf">🌾</span> Conselho na Roça</div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button class="ref-btn" onclick="openModal()">📋 Tabela do Conselho</button>
+      <div class="score-pill" id="scorePill">⭐ 0 pts</div>
+    </div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div id="screen"></div>
+
+  <footer class="credit">Jogo educativo de governança corporativa para empresas rurais e familiares</footer>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-box">
+    <h3>Papel do Conselho (donos e um externo)</h3>
+    <p class="sub">Use esta tabela como referência a qualquer momento do jogo.</p>
+    <div class="ref-table-wrap">
+      <table class="ref-table">
+        <tr><th>Direciona</th><th>Aprova</th><th>Aprova</th><th>Avalia</th></tr>
+        <tr><td>Definir Ambição, Visão e Apetite de risco</td><td>Aprovar orçamento</td><td>Contratar executivo chefe</td><td>Avaliar resultados</td></tr>
+        <tr><td>Definir os Nãos do negócio</td><td>Aprovar plano de investimentos</td><td>Aprovar novos gestores</td><td>Avaliar andamento de projetos</td></tr>
+        <tr><td>Aprovar plano estratégico</td><td>Aprovar grandes contratos</td><td>Aprovar remuneração executivos</td><td>Monitorar riscos x limites</td></tr>
+        <tr><td>Definir limites de risco</td><td>Aprovar plano de vendas e hedging</td><td>Aprovar programa bônus</td><td>Monitorar evolução pessoas-chave</td></tr>
+        <tr><td>Definir política de dividendos</td><td>Aprovar estrutura organizacional</td><td>Aprovar plano sucessão gerentes</td><td>Monitorar estatísticas de RH</td></tr>
+        <tr><td>Definir regras família &amp; negócio</td><td>Planejar sucessão na família</td><td>Aprovar relatório auditores</td><td>Monitorar pontos de auditoria</td></tr>
+      </table>
+    </div>
+    <button class="modal-close" onclick="closeModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+/* ======================= DADOS ======================= */
+
+const phase1 = [
+  { text: "Aprovar o plano estratégico da empresa para os próximos anos.",
+    answer: true,
+    exp: "Correto: definir o rumo estratégico (Direciona/Aprova) é uma das funções centrais do Conselho." },
+  { text: "Decidir para qual comprador vender a safra desta semana.",
+    answer: false,
+    exp: "Isso é decisão comercial do dia a dia — cabe à gestão executiva, não ao Conselho." },
+  { text: "Contratar (ou substituir) o executivo principal (CEO / Diretor-Geral) da empresa.",
+    answer: true,
+    exp: "Correto: contratar o executivo chefe está entre as principais aprovações do Conselho." },
+  { text: "Definir a escala de trabalho e a rotina diária dos funcionários do talhão.",
+    answer: false,
+    exp: "Gestão operacional de pessoal do dia a dia é responsabilidade da gerência da fazenda, não do Conselho." },
+  { text: "Aprovar o orçamento anual, os grandes investimentos e a remuneração dos executivos.",
+    answer: true,
+    exp: "Correto: orçamento, investimentos e remuneração de executivos são aprovações típicas do Conselho." },
+  { text: "Assinar pessoalmente cada nota fiscal de compra de insumos do dia a dia.",
+    answer: false,
+    exp: "Controle operacional de compras é função da gestão executiva, não do Conselho." },
+  { text: "Definir os limites de risco (financeiro, de mercado, de câmbio) e avaliar os resultados frente a esses limites.",
+    answer: true,
+    exp: "Correto: definir limites de risco e monitorar riscos x limites são papéis centrais do Conselho." },
+  { text: "Escolher qual marca de trator comprar numa negociação pontual de baixo valor.",
+    answer: false,
+    exp: "Decisão de compra operacional e pontual — não é pauta de Conselho." },
+];
+
+const phase2 = [
+  { text: "Situação e previsão de resultados e caixa.", answer: "rec",
+    exp: "Recorrente: acompanhado a cada reunião para garantir visão atualizada do negócio." },
+  { text: "Andamento do orçado x realizado.", answer: "rec",
+    exp: "Recorrente: comparação orçado x realizado é pauta fixa de toda reunião." },
+  { text: "Indicadores de desempenho e risco (produtividade, andamento de safra, liquidez).", answer: "rec",
+    exp: "Recorrente: são os termômetros do negócio, monitorados reunião a reunião." },
+  { text: "Situação de comercialização e descasamentos de fixação de preço ou de câmbio.", answer: "rec",
+    exp: "Recorrente: comercialização e exposição a preço/câmbio mudam o tempo todo e exigem acompanhamento contínuo." },
+  { text: "Projetos em andamento: cronograma, orçamento e desvios.", answer: "rec",
+    exp: "Recorrente: projetos precisam de acompanhamento contínuo até a conclusão." },
+  { text: "Grandes operações financeiras.", answer: "rec",
+    exp: "Recorrente: sempre que relevantes, entram na pauta da reunião em que ocorrem." },
+  { text: "Acompanhamento de pontos de auditoria.", answer: "rec",
+    exp: "Recorrente: pendências de auditoria são revisadas em cada reunião até serem resolvidas." },
+  { text: "Projeção de resultados, balanço e indicadores para o próximo ano (e mais 3 anos).", answer: "anual",
+    exp: "Anual: o planejamento de médio prazo é revisado uma vez por ano." },
+  { text: "Programa de investimentos do ano seguinte.", answer: "anual",
+    exp: "Anual: o plano de investimentos do próximo ciclo é definido na reunião anual." },
+  { text: "Desempenho, potencial, bônus e contratações-chave das pessoas de primeiro nível.", answer: "anual",
+    exp: "Anual: avaliação de pessoas, remuneração variável e sucessão são discutidas uma vez por ano." },
+];
+
+/* ======================= ESTADO ======================= */
+
+let phase = "intro";     // intro | p1 | mid | p2 | end
+let idx = 0;
+let score = 0;
+let answered = false;
+let history = [];        // { text, correct: bool, phaseLabel }
+
+const totalQuestions = phase1.length + phase2.length;
+
+/* ======================= RENDER ======================= */
+
+function updateChrome() {
+  document.getElementById('scorePill').textContent = `⭐ ${score} pts`;
+  let done = 0;
+  if (phase === "p1") done = idx;
+  else if (phase === "mid" || phase === "p2") done = phase1.length + (phase === "p2" ? idx : 0);
+  else if (phase === "end") done = totalQuestions;
+  const pct = Math.min(100, Math.round((done / totalQuestions) * 100));
+  document.getElementById('progressFill').style.width = pct + "%";
+}
+
+function render() {
+  updateChrome();
+  const el = document.getElementById('screen');
+
+  if (phase === "intro") {
+    el.innerHTML = `
+      <div class="card">
+        <span class="phase-tag">Boas-vindas</span>
+        <h1 class="hero-title">Conselho na Roça<br>O Jogo da Boa Governança</h1>
+        <p class="hero-sub">Um Conselho Consultivo bem usado ajuda a empresa rural a crescer com mais segurança —
+        mas só funciona se todos entenderem qual é o seu papel, e o que <b>não</b> é papel dele.
+        Vamos testar isso em duas fases rápidas.</p>
+        <div class="rules-box">
+          <b>Como funciona:</b>
+          <ul>
+            <li><b>Fase 1 — "Isso é papel do Conselho?"</b>: 8 situações. Diga se é papel do Conselho ou não.</li>
+            <li><b>Fase 2 — "Isso entra na pauta... quando?"</b>: 10 temas de reunião. Diga se entram em toda
+            reunião ou só uma vez por ano.</li>
+          </ul>
+          A qualquer momento, toque em <b>📋 Tabela do Conselho</b> no topo para consultar a referência.
+        </div>
+        <button class="btn btn-primary" onclick="startPhase1()">Começar Fase 1 →</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (phase === "p1") {
+    const q = phase1[idx];
+    el.innerHTML = `
+      <div class="card">
+        <div class="q-eyebrow">Fase 1 · Pergunta ${idx + 1} de ${phase1.length}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="choices">
+          <button class="choice-btn" id="btnYes" onclick="answerP1(true)"><span class="emoji">✅</span>É papel do Conselho</button>
+          <button class="choice-btn" id="btnNo" onclick="answerP1(false)"><span class="emoji">🚫</span>NÃO é papel do Conselho</button>
+        </div>
+        <div class="feedback" id="fb"></div>
+        <div class="next-row" id="nextRow">
+          <button class="btn btn-primary" onclick="nextP1()">${idx === phase1.length - 1 ? "Ir para Fase 2 →" : "Próxima pergunta →"}</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (phase === "mid") {
+    el.innerHTML = `
+      <div class="card">
+        <span class="phase-tag">Intervalo</span>
+        <h1 class="hero-title" style="font-size:22px;">Fase 1 concluída! 🎉</h1>
+        <p class="hero-sub">Antes da Fase 2, uma pausa rápida: a reunião do Conselho tem temas que aparecem
+        <b>toda vez</b>, e temas que só entram <b>uma vez por ano</b>. Veja o resumo abaixo e depois continue.</p>
+        <div class="rules-box">
+          <b>Fase 2 — "Isso entra na pauta... quando?"</b><br>
+          Você vai ver 10 temas de reunião. Para cada um, escolha:
+          <ul>
+            <li>📅 <b>Toda reunião</b> — acompanhado periodicamente</li>
+            <li>🗓️ <b>Uma vez por ano</b> — decidido/revisado na reunião anual</li>
+          </ul>
+        </div>
+        <button class="btn btn-primary" onclick="startPhase2()">Começar Fase 2 →</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (phase === "p2") {
+    const q = phase2[idx];
+    el.innerHTML = `
+      <div class="card">
+        <div class="q-eyebrow">Fase 2 · Tema ${idx + 1} de ${phase2.length}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="choices">
+          <button class="choice-btn" id="btnRec" onclick="answerP2('rec')"><span class="emoji">📅</span>Toda reunião</button>
+          <button class="choice-btn" id="btnAnual" onclick="answerP2('anual')"><span class="emoji">🗓️</span>Uma vez por ano</button>
+        </div>
+        <div class="feedback" id="fb"></div>
+        <div class="next-row" id="nextRow">
+          <button class="btn btn-primary" onclick="nextP2()">${idx === phase2.length - 1 ? "Ver resultado final →" : "Próximo tema →"}</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (phase === "end") {
+    const pct = Math.round((score / totalQuestions) * 100);
+    let tier, tierColor, msg;
+    if (score >= 16) {
+      tier = "🏆 Conselheiro(a) Nota 10!";
+      tierColor = "var(--green-dark)";
+      msg = "Você entende muito bem o papel do Conselho e como organizar a pauta das reuniões. Compartilhe esse conhecimento com os outros sócios!";
+    } else if (score >= 11) {
+      tier = "👍 Bom entendimento!";
+      tierColor = "var(--brown-dark)";
+      msg = "Você já entende bem o essencial. Releia com calma os itens que errou — vale revisar junto com o facilitador antes da próxima reunião.";
+    } else {
+      tier = "📚 Vale revisar com calma";
+      tierColor = "var(--red)";
+      msg = "Sem problema — governança é assunto novo para muita gente. Revise a tabela do Conselho e os pontos abaixo antes da próxima reunião.";
+    }
+
+    const recapHtml = history.map(h => `
+      <div class="recap-item">
+        <span class="recap-icon">${h.correct ? "✅" : "❌"}</span>
+        <div><b>${h.phaseLabel}:</b> ${h.text}</div>
+      </div>
+    `).join("");
+
+    el.innerHTML = `
+      <div class="card">
+        <span class="phase-tag">Resultado final</span>
+        <div class="end-score">${score}<span> / ${totalQuestions} pontos (${pct}%)</span></div>
+        <div class="end-tier" style="color:${tierColor}">${tier}</div>
+        <p class="end-msg">${msg}</p>
+        <button class="btn btn-primary" onclick="restart()">🔁 Jogar novamente</button>
+        <div class="recap">
+          <div class="q-eyebrow" style="margin-top:20px;">Revisão completa</div>
+          ${recapHtml}
+        </div>
+      </div>
+    `;
+    return;
+  }
+}
+
+/* ======================= LÓGICA ======================= */
+
+function startPhase1() {
+  phase = "p1"; idx = 0; render();
+}
+function startPhase2() {
+  phase = "p2"; idx = 0; render();
+}
+
+function lockButtons(ids) {
+  ids.forEach(id => { const b = document.getElementById(id); if (b) b.disabled = true; });
+}
+
+function showFeedback(correct, exp) {
+  const fb = document.getElementById('fb');
+  fb.className = "feedback show " + (correct ? "ok" : "bad");
+  fb.innerHTML = `<div class="fb-title">${correct ? "✅ Certo!" : "❌ Quase — veja por quê:"}</div>${exp}`;
+  document.getElementById('nextRow').classList.add('show');
+}
+
+function answerP1(userSaysYes) {
+  if (answered) return;
+  answered = true;
+  const q = phase1[idx];
+  const correct = (userSaysYes === q.answer);
+  if (correct) score += 1;
+
+  document.getElementById(userSaysYes ? 'btnYes' : 'btnNo').classList.add(correct ? "correct" : "wrong");
+  const other = document.getElementById(userSaysYes ? 'btnNo' : 'btnYes');
+  if (!correct) other.classList.add("correct");
+
+  lockButtons(['btnYes', 'btnNo']);
+  showFeedback(correct, q.exp);
+  history.push({ text: q.text, correct: correct, phaseLabel: "Fase 1" });
+  updateChrome();
+}
+
+function answerP2(userChoice) {
+  if (answered) return;
+  answered = true;
+  const q = phase2[idx];
+  const correct = (userChoice === q.answer);
+  if (correct) score += 1;
+
+  const chosenId = userChoice === 'rec' ? 'btnRec' : 'btnAnual';
+  const correctId = q.answer === 'rec' ? 'btnRec' : 'btnAnual';
+  document.getElementById(chosenId).classList.add(correct ? "correct" : "wrong");
+  if (!correct) document.getElementById(correctId).classList.add("correct");
+
+  lockButtons(['btnRec', 'btnAnual']);
+  showFeedback(correct, q.exp);
+  history.push({ text: q.text, correct: correct, phaseLabel: "Fase 2" });
+  updateChrome();
+}
+
+function nextP1() {
+  answered = false;
+  if (idx < phase1.length - 1) { idx += 1; render(); }
+  else { phase = "mid"; render(); }
+}
+function nextP2() {
+  answered = false;
+  if (idx < phase2.length - 1) { idx += 1; render(); }
+  else { phase = "end"; render(); }
+}
+
+function restart() {
+  phase = "intro"; idx = 0; score = 0; answered = false; history = [];
+  render();
+}
+
+function openModal() { document.getElementById('modalBackdrop').classList.add('show'); }
+function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); }
+
+render();
+</script>
+</body>
+</html>
